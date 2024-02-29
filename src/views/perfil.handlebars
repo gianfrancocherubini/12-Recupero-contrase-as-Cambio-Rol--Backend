@@ -1,0 +1,48 @@
+{{>menu}}
+
+<h2>Perfil {{usuario.nombre}}</h2>
+<hr>
+<p>Nombre: {{usuario.nombre}} -  Correo Electrónico: <strong>{{usuario.email}}</strong></p>
+<a href="/carrito/{{usuario.carrito}}">Ver Carrito</a>
+<hr>
+<button onclick="cambiarRolUsuario('{{usuario.id}}')">Cambiar Rol</button>
+<hr>
+
+
+
+{{#if mensajeEnviado}}
+  <p id="mensaje">Consulta enviada correctamente.</p>
+{{/if}}
+
+<form action="/api/perfil/consultasWs" method="POST">
+  <label for="consulta">Consultas:</label><br>
+  <textarea id="consulta" name="consulta" rows="4" cols="50"></textarea><br><br>
+  <input type="submit" value="Enviar">
+</form>
+
+
+<script>
+  // Función para ocultar el mensaje después de unos segundos
+  setTimeout(function() {
+    var mensaje = document.getElementById('mensaje');
+    if (mensaje) {
+      mensaje.style.display = 'none';
+    }
+  }, 2000);
+
+  // Función cambiar de rol de usuario
+
+  const cambiarRolUsuario = async (id) => {
+  
+    let resultado = await fetch("/api/perfil/premium/"+id, {
+      method: "post"
+    });
+
+    if (resultado.ok) {
+      const usuario = await resultado.json();
+      alert(`Tu rol ha sido cambiado a {{usuario.rol}}.`);
+      location.reload();
+    }
+  
+}
+</script>
