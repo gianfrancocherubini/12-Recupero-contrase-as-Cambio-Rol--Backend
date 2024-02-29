@@ -58,14 +58,24 @@ export class ProductsController{
                 res.setHeader('Content-Type', 'application/json');
                 return res.status(400).json({ error: `Ya existe un producto con el código '${newProductData.code}'.` });
             }
-            
+
+            const owner = {
+                userId: usuario.id
+            };
+
+            if (usuario.rol === 'premium') {
+                owner.role = 'premium';
+            }
+
+            newProductData.owner = owner;
     
             await productsService.createProduct(newProductData);
             req.logger.info(`Se creo el producto: ${newProductData.title}`);
             res.setHeader('Content-Type', 'application/json');
             return res.status(201).json({ success: true, message: 'Producto agregado correctamente.', newProductData });
         } catch (error) {
-            req.logger.error('Error al agregar el producto');
+            console.log(error)
+            req.logger.error(`Error al agregar el producto, ${error}`);
             res.setHeader('Content-Type', 'application/json');
             return res.status(500).json({ error: 'Error al agregar el producto.' });
         }
