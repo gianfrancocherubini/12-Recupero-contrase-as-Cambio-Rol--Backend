@@ -86,9 +86,9 @@ export class ProductsController{
             const productId = req.params.pid;
     
             // Buscar el producto existente por _id
-            const existingProduct = await productsService.getProductById(productId)
+            const product = await productsService.getProductById(productId)
     
-            if (!existingProduct) {
+            if (!product) {
                 res.setHeader('Content-Type', 'application/json');
                 return res.status(404).json({ error: 'Producto no encontrado.' });
             }
@@ -99,15 +99,16 @@ export class ProductsController{
                 res.setHeader('Content-Type', 'application/json');
                 return res.status(400).json({ error: 'No se puede modificar la propiedad _id.' });
             }
-
+            
             if (usuario.rol === 'premium') {
-                if (existingProduct.owner.role !== 'premium' || existingProduct.owner.userId !== usuario.id) {
-                    req.logger.info(`No tiene permiso para actualizar el producto: ${existingProduct.title}`);
+
+                if (product.owner.userId.toString() !== usuario.id) {
+                    req.logger.info(`No tiene permiso para actualizar el producto: ${product.title}`);
                     res.setHeader('Content-Type', 'application/json');
                     return res.status(403).json({ error: 'No tiene permiso para modificar este producto.' });
                 }
             }
-            // Actualizar el producto utilizando findByIdAndUpdate
+
             const updateResult = await productsService.update(productId, req.body);
     
             if (updateResult) {
@@ -125,33 +126,43 @@ export class ProductsController{
         }
     }
 
-    static async deleteProduct (req,res){
-        try {
-            const productId = req.params.pid;
-            const usuario =req.session.usuario
-            // Buscar el producto existente por _id
-            const existingProduct = await productsService.getProductById(productId)
-    
-            if (!existingProduct) {
-                res.setHeader('Content-Type', 'application/json');
-                return res.status(404).json({ error: 'Producto no encontrado.' });
-            }
-    
-            // Actualizar el producto utilizando findByIdAndUpdate
-            const updateResult = await productsService.delete(productId);
-    
-            if (updateResult) {
-                req.logger.info(`Producto eliminado: ${productId}`);
-                res.setHeader('Content-Type', 'application/json');
-                return res.status(200).json({ success: true, message: 'Producto Eliminado' });
-            } else {
-                res.setHeader('Content-Type', 'application/json');
-                return res.status(400).json({ error: 'No se puedo eliminar el producto' });
-            }
-        } catch (error) {
-            req.logger.error(`Error al eliminar el producto ${error}`);
+ static async deleteProduct(req, res) {
+    try {
+        const productId = req.params.pid;
+        const usuario = req.session.usuario;
+
+        // Buscar el producto existente por _id
+        const existingProduct = await productsService.getProductById(productId);
+
+        if (!existingProduct) {
             res.setHeader('Content-Type', 'application/json');
-            return res.status(500).json({ error: 'Error al eliminar el producto.' });
+            return res.status(404).json({ error: 'Producto no encontrado.' });
         }
+         
+        if (usuario.rol === 'premium') {
+            // Si el usuario es premium, solo puede eliminar productos que haya creado él mismo
+            if (existingProduct.owner.userId.toString() !== usuario.id) {
+                req.logger.error(`No tiene permiso para eliminar el producto: ${productId}`);
+                res.setHeader('Content-Type', 'application/json');
+                return res.status(403).json({ error: 'No tiene permiso para eliminar el producto' });
+            } 
+        } 
+
+        const deleteProductId = await productsService.delete(productId);  
+        if (deleteProductId) {
+            req.logger.info(`Producto eliminado: ${productId}`);
+            res.setHeader('Content-Type', 'application/json');
+            return res.status(200).json({ success: true, message: 'Producto eliminado.' });
+        } else {
+            
+            res.setHeader('Content-Type', 'application/json');
+            return res.status(400).json({ error: 'No se concretó la eliminacion.' });
+        }       
+
+    } catch (error) {
+        req.logger.error(`Error al eliminar el producto ${error}`);
+        res.setHeader('Content-Type', 'application/json');
+        return res.status(500).json({ error: 'Error al eliminar el producto.' });
     }
+}
 };
