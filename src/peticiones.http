@@ -1,0 +1,11 @@
+
+###
+POST http://localhost:3012/api/products   
+Content-Type: application/json
+ 
+{
+    
+    "email": "lucio@gmail.com",
+    "password" : "12"
+    
+}

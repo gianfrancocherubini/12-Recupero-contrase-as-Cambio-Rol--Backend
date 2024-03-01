@@ -82,6 +82,7 @@ export class ProductsController{
     }
         static async updateProduct (req,res){
         try {
+            const usuario = req.session.usuario;
             const productId = req.params.pid;
     
             // Buscar el producto existente por _id
@@ -94,10 +95,18 @@ export class ProductsController{
     
             // Verificar si la propiedad _id está presente en el cuerpo de la solicitud
             if ('_id' in req.body) {
+                req.logger.error('No se puede modificar la propiedad id')
                 res.setHeader('Content-Type', 'application/json');
                 return res.status(400).json({ error: 'No se puede modificar la propiedad _id.' });
             }
-    
+
+            if (usuario.rol === 'premium') {
+                if (existingProduct.owner.role !== 'premium' || existingProduct.owner.userId !== usuario.id) {
+                    req.logger.info(`No tiene permiso para actualizar el producto: ${existingProduct.title}`);
+                    res.setHeader('Content-Type', 'application/json');
+                    return res.status(403).json({ error: 'No tiene permiso para modificar este producto.' });
+                }
+            }
             // Actualizar el producto utilizando findByIdAndUpdate
             const updateResult = await productsService.update(productId, req.body);
     
@@ -110,7 +119,7 @@ export class ProductsController{
                 return res.status(400).json({ error: 'No se concretó la modificación.' });
             }
         } catch (error) {
-            req.logger.error('Error al actualizar el producto');
+            req.logger.error(`Error al actualizar el producto, ${error}`);
             res.setHeader('Content-Type', 'application/json');
             return res.status(500).json({ error: 'Error al actualizar el producto.' });
         }

@@ -5,6 +5,6 @@ export const router=Router();
 
 
 router.post('/', isAdminPremium, ProductsController.createProduct);
-router.put('/:pid', isAdmin, ProductsController.updateProduct);
-router.delete('/:pid', ProductsController.deleteProduct);
+router.put('/:pid', isAdminPremium, ProductsController.updateProduct);
+router.delete('/:pid', isAdminPremium, ProductsController.deleteProduct);
 
