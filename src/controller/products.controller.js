@@ -39,6 +39,7 @@ export class ProductsController{
     
             for (const field of requiredFields) {
                 if (!newProductData[field]) {
+                    req.logger.error('Todos los campos son obligatorios')
                     res.setHeader('Content-Type', 'application/json');
                     return res.status(400).json({ error: `El campo '${field}' es obligatorio.` });
                 }
@@ -48,6 +49,7 @@ export class ProductsController{
             const validThumbnails = newProductData.thumbnails.every(url => validUrl.isUri(url));
     
             if (!validThumbnails) {
+                req.logger.error('La URL de la imagen debe ser valida')
                 res.setHeader('Content-Type', 'application/json');
                 return res.status(400).json({ error: 'La URL de la imagen no es válida.' });
             }
@@ -55,6 +57,7 @@ export class ProductsController{
             
 
             if (existingProduct) {
+                req.logger.error('Ya existe un producto con el codigo proporcionado')
                 res.setHeader('Content-Type', 'application/json');
                 return res.status(400).json({ error: `Ya existe un producto con el código '${newProductData.code}'.` });
             }
@@ -89,6 +92,7 @@ export class ProductsController{
             const product = await productsService.getProductById(productId)
     
             if (!product) {
+                req.logger.error('Producto no encontrado')
                 res.setHeader('Content-Type', 'application/json');
                 return res.status(404).json({ error: 'Producto no encontrado.' });
             }
@@ -116,6 +120,7 @@ export class ProductsController{
                 res.setHeader('Content-Type', 'application/json');
                 return res.status(200).json({ success: true, message: 'Modificación realizada.' });
             } else {
+                req.logger.error('No se concreto la modificacion')
                 res.setHeader('Content-Type', 'application/json');
                 return res.status(400).json({ error: 'No se concretó la modificación.' });
             }
@@ -135,6 +140,7 @@ export class ProductsController{
         const existingProduct = await productsService.getProductById(productId);
 
         if (!existingProduct) {
+            req.logger.error('Producto no encontrado')
             res.setHeader('Content-Type', 'application/json');
             return res.status(404).json({ error: 'Producto no encontrado.' });
         }
@@ -154,7 +160,7 @@ export class ProductsController{
             res.setHeader('Content-Type', 'application/json');
             return res.status(200).json({ success: true, message: 'Producto eliminado.' });
         } else {
-            
+            req.logger.error('No se concretó la eliminacion.')
             res.setHeader('Content-Type', 'application/json');
             return res.status(400).json({ error: 'No se concretó la eliminacion.' });
         }       
