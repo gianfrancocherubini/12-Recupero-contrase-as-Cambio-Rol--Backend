@@ -59,8 +59,6 @@ app.use('/api/perfil', routerPerfil);
 app.use('/api/login', routerLogin);
 app.use('/mockingproducts', routerMock);
 
-
-
 const connectToDatabase = async () => {
     try {
         // se usan las variables de entorno

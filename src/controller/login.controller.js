@@ -8,7 +8,6 @@ export class LoginController {
     }
 
     static async loginCallBackGithub(req,res){
-        console.log(req.user)
         req.session.usuario=req.user
         res.setHeader('Content-Type','application/json');
         res.status(200).redirect('/home');

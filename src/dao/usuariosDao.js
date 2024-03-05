@@ -37,7 +37,7 @@ export class UsuariosMongoDao {
             let existe=await UsuariosModelo.findOne({email})
             return existe;
         }catch(error){
-            req.logger.error(`Error al obtener el usuario por email,${error}`);
+            // req.logger.error(`Error al obtener el usuario por email,${error}`);
             throw error;
         }
     }
@@ -77,8 +77,8 @@ export class UsuariosMongoDao {
             const usuario = await UsuariosModelo.findOne({ email }).lean();
             return usuario;
         } catch (error) {
-            req.logger.error(`Error al obtener usuario por email, ${error}`);
-            throw error;
+            // req.logger.error(`Error al crear usuario regular,${error}`);
+            console.log(error);
         }
     }
 

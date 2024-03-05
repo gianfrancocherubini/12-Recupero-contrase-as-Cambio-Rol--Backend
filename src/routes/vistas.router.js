@@ -27,3 +27,5 @@ router.get('/registro', auth2, RegistroController.registroRender);
 router.get('/perfil', auth, PerfilController.perfilUsuario);
 router.get('/login', auth2, LoginController.loginRender);
 router.get('/logout', LogoutController.logoutUsuario );
+router.get('/recuperoPassword', PerfilController.renderRecuperoPassword);
+router.get('/recuperoPassword02', PerfilController.renderRecuperoPassword02);
