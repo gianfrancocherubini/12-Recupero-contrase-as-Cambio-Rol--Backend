@@ -72,18 +72,19 @@ export class PerfilController {
     static async recuperoPassword01 (req, res){
         let {email} = req.body
         let usuario = await usuariosDao.getUsuarioByEmailLogin(email);
+        req.logger.info(usuario.email);
         if(!usuario){
             return res.redirect('/recuperoPassword?error=No se encontro el usuario con el email proporcionado, verifique si es el correcto!')
         }
         
         let token=jwt.sign({...usuario}, "CoderCoder123", {expiresIn:"1h"})
-        console.log(`el token es ${token}`)
+        console.log(`el token es `,token)
         let mensaje=`Hola. Ha solicitado recuperar su contraseña!.
             Haga click en el siguiente link: <a href="http://localhost:3012/recuperoPassword02?token=${token}">Recuperar Contraseña</a>
             para reestablecer su contraseña`;
 
         let respuesta = await enviarEmail(email, "Recupero Password", mensaje)
-
+        console.log(respuesta)
         if(respuesta.accepted.length>0){
             res.redirect('/recuperoPassword?mensaje=Recibira al instante un mail para recuperar la contraseña! Verifique su casilla de correo.')
         }else{
@@ -93,11 +94,13 @@ export class PerfilController {
     }
 
     static async renderRecuperoPassword02(req, res) {
-        let { token, mensaje, error } = req.query;
+        
         try {
+            let { token, mensaje, error } = req.query;
             // Verifica el token y extrae los datos del usuario si el token es válido
             let datosToken = jwt.verify(token, "CoderCoder123");
-            console.log(`los datos del token son ${datosToken}`)
+            console.log(`los datos del token sonnnn`, datosToken)
+            
             res.setHeader('Content-Type', 'text/html');
             res.status(200).render("recupero02", { token, mensaje, error });
         } catch (error) {
@@ -118,27 +121,29 @@ export class PerfilController {
         }
 
         try {
-            let datosToken=jwt.verify(token, "CoderCoder123")
-            console.log(datosToken)
-            let usuario=await usuariosDao.getUsuarioByEmailLogin({email:datosToken.email});
-            if(!usuario){
-                res.setHeader('Content-Type','application/json');
-                return res.status(400).json({error:`Error de usuario`})
-            }
+            // let datosToken=jwt.verify(token, "CoderCoder123")
+            // console.log('los datos del token: ', datosToken)
+            // console.log(datosToken.email)
+            // let usuario=await usuariosDao.getUsuarioByEmailLogin(datosToken.email);
+            // console.log(usuario)
+            // if(!usuario){
+            //     res.setHeader('Content-Type','application/json');
+            //     return res.status(400).json({error:`Error de usuario`})
+            // }
 
-            if(bcrypt.compareSync(password, usuario.password)){
-                res.redirect("/recuperoPassword02?error=Ha ingresado una contraseña utilizada en el pasaso, debe ingrezar una nueva.");
+            // if(bcrypt.compareSync(password, usuario.password)){
+            //     res.redirect("/recuperoPassword02?error=Ha ingresado una contraseña utilizada en el pasaso, debe ingrezar una nueva.");
                 
-            }
-            // console.log("llego 01")
-            let usuarioActualizado={...usuario, password: creaHash(password)}
-            // console.log("llego 02")
+            // }
+            // // console.log("llego 01")
+            // let usuarioActualizado={...usuario, password: creaHash(password)}
+            // // console.log("llego 02")
     
-            console.log(usuarioActualizado)
-            // await usuariosModelo.updateOne({email:datosToken.email}, usuarioActualizado)
-            // console.log("llego 03")
+            // console.log(usuarioActualizado)
+            // // await usuariosModelo.updateOne({email:datosToken.email}, usuarioActualizado)
+            // // console.log("llego 03")
     
-            // res.redirect("http://localhost:3000/index.html?mensaje=Contraseña reseteada...!!!")
+            // // res.redirect("http://localhost:3000/index.html?mensaje=Contraseña reseteada...!!!")
         } catch (error) {
             res.setHeader('Content-Type','application/json');
             return res.status(500).json({error:`Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`})
