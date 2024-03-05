@@ -1,7 +1,7 @@
 import { enviarWs } from "../config/config.whatsApp.js";
 import { UsuariosMongoDao } from '../dao/usuariosDao.js';
 import jwt from "jsonwebtoken";
-import { creaHash } from "../utils.js";
+import bcrypt from 'bcrypt'
 import { enviarEmail } from "../mails/mails.js";
 const usuariosDao =new UsuariosMongoDao()
 
@@ -121,15 +121,15 @@ export class PerfilController {
         }
 
         try {
-            // let datosToken=jwt.verify(token, "CoderCoder123")
-            // console.log('los datos del token: ', datosToken)
-            // console.log(datosToken.email)
-            // let usuario=await usuariosDao.getUsuarioByEmailLogin(datosToken.email);
-            // console.log(usuario)
-            // if(!usuario){
-            //     res.setHeader('Content-Type','application/json');
-            //     return res.status(400).json({error:`Error de usuario`})
-            // }
+            let datosToken=jwt.verify(token, "CoderCoder123")
+            console.log('los datos del token: ', datosToken)
+            console.log(datosToken.email)
+            let usuario=await usuariosDao.getUsuarioByEmailLogin(datosToken.email);
+            console.log(usuario)
+            if(!usuario){
+                res.setHeader('Content-Type','application/json');
+                return res.status(400).json({error:`Error de usuario`})
+            }
 
             // if(bcrypt.compareSync(password, usuario.password)){
             //     res.redirect("/recuperoPassword02?error=Ha ingresado una contraseña utilizada en el pasaso, debe ingrezar una nueva.");
