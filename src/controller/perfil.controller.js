@@ -3,6 +3,7 @@ import { UsuariosMongoDao } from '../dao/usuariosDao.js';
 import jwt from "jsonwebtoken";
 import bcrypt from 'bcrypt'
 import { enviarEmail } from "../mails/mails.js";
+
 const usuariosDao =new UsuariosMongoDao()
 
 
@@ -94,7 +95,7 @@ export class PerfilController {
     }
 
     static async renderRecuperoPassword02(req, res) {
-        
+
         try {
             let { token, mensaje, error } = req.query;
             // Verifica el token y extrae los datos del usuario si el token es válido
@@ -114,10 +115,10 @@ export class PerfilController {
         let {password, password2, token} = req.body
 
         if(password !== password2){
-            res.redirect("/recuperoPassword02?error=Las claves deben coincidir");
+            res.redirect(`/recuperoPassword02?error=Error las claves deben coincidir`);
         }
         if(!req.body.password || !req.body.password2){
-            res.redirect("/recuperoPassword02?error=Debe ingresar las claves");
+            res.redirect(`/recuperoPassword02?error=Debe completar todos los campos`);
         }
 
         try {
@@ -126,24 +127,22 @@ export class PerfilController {
             console.log(datosToken.email)
             let usuario=await usuariosDao.getUsuarioByEmailLogin(datosToken.email);
             console.log(usuario)
+            
             if(!usuario){
-                res.setHeader('Content-Type','application/json');
-                return res.status(400).json({error:`Error de usuario`})
+                res.redirect(`/recuperoPassword02?error=No se encontro usuario con el mail ingresado. Verifique si es el correcto`);
             }
 
-            // if(bcrypt.compareSync(password, usuario.password)){
-            //     res.redirect("/recuperoPassword02?error=Ha ingresado una contraseña utilizada en el pasaso, debe ingrezar una nueva.");
-                
-            // }
-            // // console.log("llego 01")
-            // let usuarioActualizado={...usuario, password: creaHash(password)}
-            // // console.log("llego 02")
+            if(bcrypt.compareSync(password, usuario.password)){
+                res.redirect(`/recuperoPassword02?error=Ha ingresado una contraseña existente. No esta permitido`);
+            }
+            
+            let usuarioActualizado={...usuario, password:bcrypt.hashSync(password, bcrypt.genSaltSync(10))}
+            
     
-            // console.log(usuarioActualizado)
-            // // await usuariosModelo.updateOne({email:datosToken.email}, usuarioActualizado)
-            // // console.log("llego 03")
-    
-            // // res.redirect("http://localhost:3000/index.html?mensaje=Contraseña reseteada...!!!")
+            console.log('El usuario actualizado es:',usuarioActualizado)
+            await usuariosDao.modificarUsuarioPorMail(datosToken.email,usuarioActualizado);
+
+            res.redirect("/recuperoPassword?mensaje=Constraseña restablecida")
         } catch (error) {
             res.setHeader('Content-Type','application/json');
             return res.status(500).json({error:`Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`})

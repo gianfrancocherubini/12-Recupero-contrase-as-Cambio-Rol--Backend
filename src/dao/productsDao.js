@@ -7,7 +7,7 @@ export class ProductsMongoDao {
             const products = await ProductEsquema.find({ ...query, deleted: false }).lean();
             return products;
         } catch (error) {
-            req.logger.error(`Error al obtener productos,${error}`);
+            req.logger.error(`Error al obtener productos`);
             throw error;
         }
     }
@@ -17,7 +17,7 @@ export class ProductsMongoDao {
             const product = await ProductEsquema.findById({ _id: productId, deleted: false });
             return product;
         } catch (error) {
-            req.logger.error(`Error al obtener producto por ID,${error}`);
+            req.logger.error(`Error al obtener producto por ID`);
             throw error;
         }
     }
@@ -27,7 +27,7 @@ export class ProductsMongoDao {
             const productCode = await ProductEsquema.findOne({ code: productByCode });
             return productCode;
         } catch (error) {
-            req.logger.error(`Error al obtener producto por código,${error}`);
+            req.logger.error(`Error al obtener producto por código`);
             throw error;
         }
     }
@@ -37,7 +37,7 @@ export class ProductsMongoDao {
             const newProduct = await ProductEsquema.create(product);
             return newProduct;
         } catch (error) {
-            req.logger.error(`Error al crear producto,${error}`);
+            req.logger.error(`Error al crear producto`);
             throw error;
         }
     }
@@ -51,7 +51,7 @@ export class ProductsMongoDao {
             );
             return updatedProduct;
         } catch (error) {
-            req.logger.error(`Error al actualizar producto,${error}`);
+            req.logger.error(`Error al actualizar producto`);
             throw error;
         }
     }
@@ -61,7 +61,7 @@ export class ProductsMongoDao {
             const deletedProduct = await ProductEsquema.findByIdAndDelete(productId);
             return deletedProduct;
         } catch (error) {
-            req.logger.error(`Error al eliminar producto,${error}`);
+            req.logger.error(`Error al eliminar producto`);
             throw error;
         }
 

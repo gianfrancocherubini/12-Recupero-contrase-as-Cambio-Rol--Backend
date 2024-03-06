@@ -7,7 +7,7 @@ export class UsuariosMongoDao {
             const usuarios = await UsuariosModelo.findById({ _id: usuarioId, rol: "usuario" });
             return usuarios;
         } catch (error) {
-            req.logger.error(`Error al obttener el usuario por id ${error}`);
+            req.logger.error(`Error al obttener el usuario por id`);
             throw error;
         }
     }
@@ -17,7 +17,7 @@ export class UsuariosMongoDao {
             const administrador = await UsuariosModelo.findById({ _id: adminId, rol: "administrador" });
             return administrador;
         } catch (error) {
-            req.logger.error(`Error al obtener administrador, ${error}`);
+            req.logger.error(`Error al obtener administrador`);
             throw error;
         }
     }
@@ -27,7 +27,7 @@ export class UsuariosMongoDao {
             const todosUsuarios = await UsuariosModelo.find().lean();
             return todosUsuarios;
         } catch (error) {
-            req.logger.error(`Error al obtener todos los usuarios,${error}`);
+            req.logger.error(`Error al obtener todos los usuarios`);
             throw error;
         }
     }
@@ -37,7 +37,7 @@ export class UsuariosMongoDao {
             let existe=await UsuariosModelo.findOne({email})
             return existe;
         }catch(error){
-            // req.logger.error(`Error al obtener el usuario por email,${error}`);
+            req.logger.error(`Error al obtener el usuario por email`);
             throw error;
         }
     }
@@ -47,7 +47,7 @@ export class UsuariosMongoDao {
             let usuario=await UsuariosModelo.findOne({id})
             return usuario;
         }catch(error){
-            req.logger.error(`Error al obtener el usuario por email,${error}`);
+            req.logger.error(`Error al obtener el usuario por email`);
             throw error;
         }
     }
@@ -57,7 +57,7 @@ export class UsuariosMongoDao {
             let usuario = await UsuariosModelo.create({ nombre, email, password, rol: 'administrador' });
             return usuario;
         } catch (error) {
-            req.logger.error(`Error al crear administrador,${error}`);
+            req.logger.error(`Error al crear administrador`);
             throw error;
         }
     }
@@ -67,7 +67,7 @@ export class UsuariosMongoDao {
             const usuario = await UsuariosModelo.create({ nombre, email, password,carrito: idCarrito });
             return usuario;
         } catch (error) {
-            req.logger.error(`Error al crear usuario regular,${error}`);
+            req.logger.error(`Error al crear usuario regular`);
             throw error;
         }
     }
@@ -77,7 +77,7 @@ export class UsuariosMongoDao {
             const usuario = await UsuariosModelo.findOne({ email }).lean();
             return usuario;
         } catch (error) {
-            // req.logger.error(`Error al crear usuario regular,${error}`);
+            req.logger.error(`Error al crear usuario regular`);
             console.log(error);
         }
     }
@@ -106,12 +106,21 @@ export class UsuariosMongoDao {
             
             
         } catch (error) {
-            console.log(`error de funcion modificar usuario, ${error}`)
-            req.logger.error(`Error al modificar el usuario,${error}`);
+            req.logger.error(`Error al modificar el rol del usuario`);
             throw error;
         }
     }
 
+    async modificarUsuarioPorMail (mail, usuarioActualizado){
+        try {
+            const modificarUsuario = await UsuariosModelo.updateOne({email:mail}, usuarioActualizado);
+            return modificarUsuario;
+
+        } catch(error){
+            req.logger.error(`Error al modificar el usuario`);
+            throw error;
+        }
+    }
 
 }
 

@@ -3,12 +3,12 @@
 
 <h2>Ingrese su nueva contraseña:</h2>
 
-    
-
-<form action="/api/perfil/recupero03" method="post">
     {{#if error}}
         <div style="color: red;">{{error}}</div>
     {{/if}}
+
+<form action="/api/perfil/recupero03" method="post">
+    
     <input type="password" name="password" id="password" placeholder="Ingrese nueva contraseña">
     <input type="password" name="password2" id="password2" placeholder="Repita la contraseña">
     <input type="text" name="token" id="token" hidden>
