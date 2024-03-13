@@ -73,7 +73,6 @@ export class PerfilController {
     static async recuperoPassword01 (req, res){
         let {email} = req.body
         let usuario = await usuariosDao.getUsuarioByEmailLogin(email);
-        req.logger.info(usuario.email);
         if(!usuario){
             return res.redirect('/recuperoPassword?error=No se encontro el usuario con el email proporcionado, verifique si es el correcto!')
         }
