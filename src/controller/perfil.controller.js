@@ -78,13 +78,11 @@ export class PerfilController {
         }
         
         let token=jwt.sign({...usuario}, "CoderCoder123", {expiresIn:"1h"})
-        console.log(`el token es `,token)
         let mensaje=`Hola. Ha solicitado recuperar su contraseña!.
             Haga click en el siguiente link: <a href="http://localhost:3012/recuperoPassword02?token=${token}">Recuperar Contraseña</a>
             para reestablecer su contraseña`;
 
         let respuesta = await enviarEmail(email, "Recupero Password", mensaje)
-        console.log(respuesta)
         if(respuesta.accepted.length>0){
             res.redirect('/recuperoPassword?mensaje=Recibira al instante un mail para recuperar la contraseña! Verifique su casilla de correo.')
         }else{
@@ -99,13 +97,11 @@ export class PerfilController {
             let { token, mensaje, error } = req.query;
             // Verifica el token y extrae los datos del usuario si el token es válido
             let datosToken = jwt.verify(token, "CoderCoder123");
-            console.log(`los datos del token sonnnn`, datosToken)
-            
             res.setHeader('Content-Type', 'text/html');
-            res.status(200).render("recupero02", { token, mensaje, error });
+            return res.status(200).render("recupero02", { token, mensaje, error });
         } catch (error) {
             // Si hay un error al verificar el token, redirige con un mensaje de error
-            res.redirect("/recuperoPassword02?error=Error token: " + error.message);
+            return res.redirect(`/recuperoPassword02?token=${token}&error=Error token: `+ error.message);
         }
     }
 
@@ -114,10 +110,10 @@ export class PerfilController {
         let {password, password2, token} = req.body
 
         if(password !== password2){
-            res.redirect(`/recuperoPassword02?error=Error las claves deben coincidir`);
+           return res.redirect(`/recuperoPassword02?token=${token}&error=Error las claves deben coincidir`);
         }
         if(!req.body.password || !req.body.password2){
-            res.redirect(`/recuperoPassword02?error=Debe completar todos los campos`);
+            return res.redirect(`/recuperoPassword02?token=${token}&error=Debe completar todos los campos`);
         }
 
         try {
@@ -128,7 +124,7 @@ export class PerfilController {
             console.log(usuario)
             
             if(bcrypt.compareSync(password, usuario.password)){
-                res.redirect(`/recuperoPassword02?error=Ha ingresado una contraseña existente. No esta permitido`);
+               return res.redirect(`/recuperoPassword02?token=${token}&error=Ha ingresado una contraseña existente. No esta permitido`);
             }
             
             let usuarioActualizado={...usuario, password:bcrypt.hashSync(password, bcrypt.genSaltSync(10))}
@@ -137,7 +133,7 @@ export class PerfilController {
             console.log('El usuario actualizado es:',usuarioActualizado)
             await usuariosDao.modificarUsuarioPorMail(datosToken.email,usuarioActualizado);
 
-            res.redirect("/recuperoPassword?mensaje=Constraseña restablecida")
+            return res.redirect("/recuperoPassword?mensaje=Constraseña restablecida")
         } catch (error) {
             res.setHeader('Content-Type','application/json');
             return res.status(500).json({error:`Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`})
